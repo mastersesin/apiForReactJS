@@ -1,5 +1,5 @@
-from my_app import db
-
+from my_app import db,app
+from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -16,3 +16,7 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User %d>' % self.id
+
+    def generate_auth_token(self, expiration=600):
+        s = Serializer(app.config['SECRET_KEY'], expires_in=60*60*2)
+        return s.dumps({'id': self.id})
