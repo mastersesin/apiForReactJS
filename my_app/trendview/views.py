@@ -19,6 +19,9 @@ returnMsg = {
     },
     "Username or Password Incorrect":{
         "code":5,"msg":"Username or Password Incorrect"
+    },
+    "Return Token":{
+        "code":6,"msg":""
     }
 }
 
@@ -28,16 +31,17 @@ def register():
     email = request.form.get('email')
     telephone = request.form.get('telephone')
     password = request.form.get('password')
+    referer = request.form.get('referer')
     duplicateUsernameCheck = User.query.filter_by(username=username).first()
     if duplicateUsernameCheck == None:
         duplicateEmailCheck = User.query.filter_by(email=email).first()
         if duplicateEmailCheck == None:
             duplicatePhoneNumberCheck = User.query.filter_by(telephone=telephone).first()
             if duplicatePhoneNumberCheck == None:
-                newUser = User(username, email, telephone, password)
+                newUser = User(username, email, telephone, password, referer)
                 db.session.add(newUser)
                 db.session.commit()
-                return jsonify(returnMsg['registerSuccess'])
+                return jsonify(returnMsg["registerSuccess"])
             else:
                 return jsonify(returnMsg["Phone Duplicated"])
         else:
@@ -53,7 +57,9 @@ def login():
     if usernameCheck != None:
         passwordCheck = usernameCheck.password
         if passwordCheck == password:
-            return usernameCheck.generate_auth_token()
+            msg = returnMsg["Return Token"]
+            msg['msg'] = usernameCheck.generate_auth_token()
+            return jsonify(msg)
         else:
             return jsonify(returnMsg["Username or Password Incorrect"])
     else:
