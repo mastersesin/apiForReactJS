@@ -5,12 +5,25 @@ from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSign
 trendviewApp = Blueprint('trendview', __name__)
 
 returnMsg = {
-    "registerSuccess":{"code":1,"msg":"User created"}
+    "registerSuccess":{
+        "code":1,"msg":"User created successfully."
+    },
+    "Phone Duplicated":{
+        "code":2,"msg":"Phone number has been used by another user."
+    },
+    "Email Duplicated":{
+        "code":3,"msg":"Email address has been used by another user."
+    },
+    "Username Duplicated":{
+        "code":4,"msg":"Username has been used by another user."
+    },
+    "Username or Password Incorrect":{
+        "code":5,"msg":"Username or Password Incorrect"
+    }
 }
 
 @trendviewApp.route('/register', methods=['POST'])
 def register():
-    print(request.__dict__)
     username = request.form.get('username')
     email = request.form.get('email')
     telephone = request.form.get('telephone')
@@ -26,11 +39,11 @@ def register():
                 db.session.commit()
                 return jsonify(returnMsg['registerSuccess'])
             else:
-                return "Phone Duplicated"
+                return jsonify(returnMsg["Phone Duplicated"])
         else:
-            return "Email Duplicated"
+            return jsonify(returnMsg["Email Duplicated"])
     else:
-        return "Username Duplicated"
+        return jsonify(returnMsg["Username Duplicated"])
 
 @trendviewApp.route('/login', methods=['POST'])
 def login():
@@ -42,9 +55,9 @@ def login():
         if passwordCheck == password:
             return usernameCheck.generate_auth_token()
         else:
-            return "Username or Password Incorrect"
+            return jsonify(returnMsg["Username or Password Incorrect"])
     else:
-        return "Username or Password Incorrect"
+        return jsonify(returnMsg["Username or Password Incorrect"])
 
 def verify_auth_token(token):
     s = Serializer(app.config['SECRET_KEY'])
